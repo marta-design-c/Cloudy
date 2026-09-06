@@ -1,0 +1,8 @@
+{
+  "name": "kloudy-site",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "stripe": "^22.0.0"
+  }
+}
