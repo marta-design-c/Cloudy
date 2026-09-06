@@ -1099,13 +1099,9 @@
   function paintSwatch(){
     if (!currentProduct) return;
     const photo = document.getElementById('productGarmentPhoto');
-    const frame = document.getElementById('productPhotoFrame');
     photo.setAttribute('src', currentProduct.image || '');
     photo.setAttribute('alt', currentProduct.name);
-    const chosen = colorways.find(c => c.value === state.color) || colorways[0];
-    // Soft colour-tinted backdrop behind the photo (not applied to the garment itself,
-    // since real photos don't have a transparent cutout to mask cleanly against).
-    frame.style.backgroundColor = state.color === 'natural' ? '' : (chosen.value + '26');
+    // Colour choice is kept and saved with the order, just not reflected visually on the photo.
   }
 
   function updatePrice(){
