@@ -918,12 +918,12 @@
 
   // ---------- PRODUCT CATALOG (placeholder data until real photos + Supabase table exist) ----------
   const products = [
-    { id: 1, name: 'Oversized Tee', category: 'Tops', price: 5, description: 'A relaxed, boxy oversized tee in heavyweight cotton — the everyday base layer for a laid-back fit.', sizes: ['XS','S','M','L','XL'] },
-    { id: 2, name: 'Croc Chain Midi Skirt', category: 'Bottoms', price: 10, description: 'A statement midi skirt with a croc-embossed finish and chain detailing. Built for the feed.', sizes: ['XS','S','M','L'] },
-    { id: 3, name: 'Sheer Slip Dress', category: 'Dresses', price: 11, description: 'A featherlight slip dress with a sheer overlay — perfect for a night out or a date look.', sizes: ['XS','S','M','L','XL'] },
-    { id: 4, name: 'Tailored Blazer', category: 'Outerwear', price: 14, description: 'A sharp, structured blazer that dresses up any outfit — rent it for the interview or the after-party.', sizes: ['S','M','L','XL'] },
-    { id: 5, name: 'Satin Slip Gown', category: 'Dresses', price: 18, description: 'A floor-length satin gown for prom, graduation balls and black-tie moments.', sizes: ['XS','S','M','L'] },
-    { id: 6, name: 'Denim Wide-Leg Jeans', category: 'Bottoms', price: 8, description: 'High-rise wide-leg denim with a vintage wash — the trend piece everyone’s chasing this week.', sizes: ['XS','S','M','L','XL'] },
+    { id: 1, name: 'Oversized Tee', category: 'Tops', price: 5, description: 'A relaxed, boxy oversized tee in heavyweight cotton — the everyday base layer for a laid-back fit.', sizes: ['XS','S','M','L','XL'], image: 'https://iysmogedbdkzlbazpdes.supabase.co/storage/v1/object/public/product-photos/tshirt.jpg' },
+    { id: 2, name: 'Croc Chain Midi Skirt', category: 'Bottoms', price: 10, description: 'A statement midi skirt with a croc-embossed finish and chain detailing. Built for the feed.', sizes: ['XS','S','M','L'], image: 'https://iysmogedbdkzlbazpdes.supabase.co/storage/v1/object/public/product-photos/skirt.jpg' },
+    { id: 3, name: 'Sheer Slip Dress', category: 'Dresses', price: 11, description: 'A featherlight slip dress with a sheer overlay — perfect for a night out or a date look.', sizes: ['XS','S','M','L','XL'], image: 'https://iysmogedbdkzlbazpdes.supabase.co/storage/v1/object/public/product-photos/blouse.jpg' },
+    { id: 4, name: 'Tailored Blazer', category: 'Outerwear', price: 14, description: 'A sharp, structured blazer that dresses up any outfit — rent it for the interview or the after-party.', sizes: ['S','M','L','XL'], image: 'https://iysmogedbdkzlbazpdes.supabase.co/storage/v1/object/public/product-photos/blaser.jpg' },
+    { id: 5, name: 'Satin Slip Gown', category: 'Dresses', price: 18, description: 'A floor-length satin gown for prom, graduation balls and black-tie moments.', sizes: ['XS','S','M','L'], image: 'https://iysmogedbdkzlbazpdes.supabase.co/storage/v1/object/public/product-photos/dress.jpg' },
+    { id: 6, name: 'Denim Wide-Leg Jeans', category: 'Bottoms', price: 8, description: 'High-rise wide-leg denim with a vintage wash — the trend piece everyone's chasing this week.', sizes: ['XS','S','M','L','XL'], image: 'https://iysmogedbdkzlbazpdes.supabase.co/storage/v1/object/public/product-photos/pants.jpg' },
   ];
   const colorways = [
     { value: 'natural', label: 'Original colour', swatch: 'conic-gradient(from 180deg,#6a4ff2,#ff3d8a,#c8e64d,#3fc6d9,#6a4ff2)' },
@@ -1073,7 +1073,7 @@
         <button type="button" class="heart-btn${isFavorite(p.id) ? ' active' : ''}" data-fav-id="${p.id}" aria-label="Save to favourites">
           <svg viewBox="0 0 24 24"><path d="${HEART_SVG_PATH}"/></svg>
         </button>
-        <div class="product-photo"><span class="product-photo-label">Photo coming soon</span></div>
+                <div class="product-photo">${p.image ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">` : '<span class="product-photo-label">Photo coming soon</span>'}</div>
         <div class="product-info">
           <span class="product-cat">${p.category}</span>
           <h3>${p.name}</h3>
@@ -1122,6 +1122,9 @@
   }
 
   function refreshProductHeart(){
+        document.getElementById('productDetailPhoto').innerHTML = product.image
+      ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:22px;">`
+      : '<span class="product-photo-label">Photo coming soon</span>';
     const btn = document.getElementById('productHeartBtn');
     if (!currentProduct) return;
     btn.classList.toggle('active', isFavorite(currentProduct.id));
@@ -1494,7 +1497,7 @@
         <button type="button" class="heart-btn active" data-fav-id="${p.id}" aria-label="Remove from favourites">
           <svg viewBox="0 0 24 24"><path d="${HEART_SVG_PATH}"/></svg>
         </button>
-        <div class="product-photo"><span class="product-photo-label">Photo coming soon</span></div>
+                <div class="product-photo">${p.image ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">` : '<span class="product-photo-label">Photo coming soon</span>'}</div>
         <div class="product-info">
           <span class="product-cat">${p.category}</span>
           <h3>${p.name}</h3>
