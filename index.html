@@ -729,9 +729,11 @@
                 <line x1="96" y1="438" x2="78" y2="446" stroke="#161221" stroke-width="3" stroke-linecap="round" opacity=".34"/>
                 <line x1="144" y1="438" x2="162" y2="446" stroke="#161221" stroke-width="3" stroke-linecap="round" opacity=".34"/>
               </svg>
-              <div class="tio-placeholder-garment" id="productGarmentSwatch"></div>
+              <div class="tio-garment-wrap" id="productGarmentWrap" style="top:20%;width:70%;">
+                <img id="productGarmentPhoto" src="" alt="">
+                <div class="tio-color-overlay" id="productColorOverlay"></div>
+              </div>
             </div>
-            <p class="tio-note">Real photo try-on lands once product photography is uploaded &mdash; colourway preview shown above.</p>
             <div class="tio-price-tag">
               <div><span class="label" id="tioGarmentLabel">Item</span><br><span style="font-size:11.5px;opacity:.75;" id="tioSizeLabel">Size S &middot; 4-day rental</span></div>
               <span class="amount" id="tioPrice">&euro;0</span>
@@ -1107,9 +1109,20 @@
   let ordersCache = [];
 
   function paintSwatch(){
-    const swatchEl = document.getElementById('productGarmentSwatch');
+    if (!currentProduct) return;
+    const photo = document.getElementById('productGarmentPhoto');
+    const overlay = document.getElementById('productColorOverlay');
+    photo.setAttribute('src', currentProduct.image || '');
+    photo.setAttribute('alt', currentProduct.name);
+    overlay.style.maskImage = `url(${currentProduct.image})`;
+    overlay.style.webkitMaskImage = `url(${currentProduct.image})`;
     const chosen = colorways.find(c => c.value === state.color) || colorways[0];
-    swatchEl.style.background = chosen.swatch;
+    if (state.color === 'natural') {
+      overlay.style.opacity = '0';
+    } else {
+      overlay.style.backgroundColor = chosen.swatch;
+      overlay.style.opacity = '0.85';
+    }
   }
 
   function updatePrice(){
@@ -1122,9 +1135,6 @@
   }
 
   function refreshProductHeart(){
-        document.getElementById('productDetailPhoto').innerHTML = product.image
-      ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:22px;">`
-      : '<span class="product-photo-label">Photo coming soon</span>';
     const btn = document.getElementById('productHeartBtn');
     if (!currentProduct) return;
     btn.classList.toggle('active', isFavorite(currentProduct.id));
@@ -1142,6 +1152,9 @@
     document.getElementById('productDetailDesc').textContent = product.description;
     document.getElementById('productDetailPrice').textContent = '€' + product.price + '/day';
     refreshProductHeart();
+    document.getElementById('productDetailPhoto').innerHTML = product.image
+      ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:22px;">`
+      : '<span class="product-photo-label">Photo coming soon</span>';
 
     const colorRow = document.getElementById('productColorRow');
     colorRow.innerHTML = colorways.map((c, i) => `
@@ -1427,8 +1440,10 @@
   });
 
   function refreshAuthUI(session){
+    const heroSignupBtn = document.getElementById('heroSignupBtn');
     if (session && session.user) {
       navAuthBtn.textContent = session.user.email.split('@')[0] + ' · Log out';
+      if (heroSignupBtn) heroSignupBtn.style.display = 'none';
       document.getElementById('ordersLoggedOut').style.display = 'none';
       document.getElementById('ordersLoggedIn').style.display = 'block';
       document.getElementById('profileLoggedOut').style.display = 'none';
@@ -1437,6 +1452,7 @@
       loadProfile();
     } else {
       navAuthBtn.textContent = 'Log in';
+      if (heroSignupBtn) heroSignupBtn.style.display = 'inline-flex';
       document.getElementById('ordersLoggedOut').style.display = 'block';
       document.getElementById('ordersLoggedIn').style.display = 'none';
       document.getElementById('profileLoggedOut').style.display = 'block';
