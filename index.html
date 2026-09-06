@@ -1242,31 +1242,54 @@
     if (!session) { pendingCheckout = true; openAuthModal('login'); return; }
     const note = document.getElementById('basketNote');
     const btn = document.getElementById('basketCheckoutBtn');
-    btn.textContent = 'Confirming...';
-    let hadError = false;
-    for (const item of list) {
-      const { error } = await sb.from('orders').insert({
-        user_id: session.user.id,
-        garment: item.name,
-        color: item.color,
-        size: item.size,
-        days: item.days,
-        price_eur: item.price,
+    btn.textContent = 'Redirecting to payment...';
+    const total = list.reduce((sum, item) => sum + item.price, 0);
+    const description = list.length + (list.length === 1 ? ' item' : ' items') + ' — Kloudy rental';
+    try {
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Math.round(total * 100), description }),
       });
-      if (error) hadError = true;
-    }
-    btn.textContent = 'Confirm & rent';
-    if (hadError) {
-      note.textContent = 'Something went wrong placing some items — please try again.';
-    } else {
-      saveBasketList([]);
-      note.textContent = 'Rented! Check My orders for your confirmation.';
-      setTimeout(() => showView('orders'), 900);
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout.');
+      window.location.href = data.url;
+    } catch (err) {
+      btn.textContent = 'Confirm & rent';
+      note.textContent = err.message || 'Something went wrong — please try again.';
     }
   }
   document.getElementById('basketCheckoutBtn').addEventListener('click', checkoutBasket);
 
+  // ---------- HANDLE RETURN FROM STRIPE ----------
+  async function handleStripeReturn(){
+    const params = new URLSearchParams(location.search);
+    const payment = params.get('payment');
+    if (!payment) return;
+    history.replaceState(null, '', location.pathname + location.hash);
+    if (payment === 'cancelled') { showView('basket'); return; }
+    if (payment === 'success') {
+      const list = loadBasket();
+      if (list.length === 0) { showView('orders'); return; }
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { showView('basket'); return; }
+      for (const item of list) {
+        await sb.from('orders').insert({
+          user_id: session.user.id,
+          garment: item.name,
+          color: item.color,
+          size: item.size,
+          days: item.days,
+          price_eur: item.price,
+        });
+      }
+      saveBasketList([]);
+      showView('orders');
+    }
+  }
+
   showView(location.hash ? location.hash.slice(1) : 'top');
+  handleStripeReturn();
 
   // ---------- AUTH ----------
   const authModal = document.getElementById('authModal');
